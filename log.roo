@@ -1,0 +1,23 @@
+// Spring Roo 1.2.1.RELEASE [rev 6eae723] log opened at 2012-07-13 09:59:43
+project --topLevelPackage au.gov.nsw.records.digitalarchive.repo --projectName Repository --java 6 --packaging WAR
+// Spring Roo 1.2.1.RELEASE [rev 6eae723] log closed at 2012-07-13 09:59:43
+// Spring Roo 1.2.1.RELEASE [rev 6eae723] log opened at 2012-07-13 10:00:03
+persistence setup --database HYPERSONIC_IN_MEMORY --provider HIBERNATE 
+entity jpa --class au.gov.nsw.records.digitalarchive.repo.model.Repository
+backup
+web mvc setup
+web mvc scaffold --class ~.web.RepositoryController
+// Spring Roo 1.2.1.RELEASE [rev 6eae723] log opened at 2012-07-13 10:18:01
+focus --class ~.model.Repository
+web mvc scaffold --class ~.web.RepositoryController
+web mvc scaffold --class ~.web.RepositoryController
+web mvc scaffold --class ~.web.RepositoryController
+web mvc scaffold --class ~.web.RepositoryController
+web mvc controller --class ~.web.RepositoryController
+backup
+// Spring Roo 1.2.1.RELEASE [rev 6eae723] log closed at 2012-07-13 13:23:07
+// Spring Roo 1.2.1.RELEASE [rev 6eae723] log opened at 2012-07-17 14:41:27
+// Spring Roo 1.2.1.RELEASE [rev 6eae723] log closed at 2012-07-19 09:56:12
+// Spring Roo 1.2.1.RELEASE [rev 6eae723] log opened at 2012-08-09 15:07:54
+perform package
+// Spring Roo 1.2.1.RELEASE [rev 6eae723] log closed at 2012-08-09 15:30:08
