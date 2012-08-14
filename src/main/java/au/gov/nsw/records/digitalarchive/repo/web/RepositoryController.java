@@ -77,17 +77,27 @@ public class RepositoryController {
 	}
 
 	@RequestMapping(value = "/**", method = RequestMethod.PUT)
-	public void setReadonly(@RequestParam("readonly") boolean readonly, HttpServletRequest request) throws IOException, OKEvent{
+	public void setReadonly(@RequestParam("readonly") boolean readonly, HttpServletRequest request) throws OKEvent, InternalErrorEvent, IOException{
 		
 		if (readonly){
 			String pathToNode = PathProcessor.getPathToNode(StringUtils.removeStart(request.getRequestURI(), request.getContextPath() + prefix));
-			String filePath = nativePathToWorkspace + File.separatorChar + pathToNode;
-			// change to read only if it's an original
+			String filePath = nativePathToWorkspace + File.separatorChar + pathToNode.replace('\\', File.separatorChar).replace('/', File.separatorChar);
+			//for testing in Windows 
+			//String[] args = new String[]{"cmd.exe", "/c", "echo", filePath};
+			// This clearly works on UNIX only.
 			String[] args = new String[]{"chmod", "-w", filePath};
-			CommandExecutor.exec(args);
-			log.info("Executed " + args);
-			throw new OKEvent();
+			String result;
+			try {
+				log.info("Executing: " + args[0]); // + " " + args[1]);
+				result = CommandExecutor.exec(args);
+				log.info("Execution result: " + result);
+				throw new OKEvent();
+			} catch (IOException e) {
+				e.printStackTrace();
+				throw e;
+			}
 		}
+		throw new InternalErrorEvent();
 	}
 	
 	@RequestMapping(value = "/**", method =  RequestMethod.GET)
