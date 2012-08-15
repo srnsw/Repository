@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URLDecoder;
+import java.util.Arrays;
 
 import javax.annotation.PostConstruct;
 import javax.jcr.Binary;
@@ -24,7 +26,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.multipart.MultipartFile;
 import org.xml.sax.SAXException;
@@ -80,7 +81,8 @@ public class RepositoryController {
 	public void setReadonly(@RequestParam("readonly") boolean readonly, HttpServletRequest request) throws OKEvent, InternalErrorEvent, IOException{
 		
 		if (readonly){
-			String pathToNode = PathProcessor.getPathToNode(StringUtils.removeStart(request.getRequestURI(), request.getContextPath() + prefix));
+			String pathToNode = StringUtils.removeStart(request.getRequestURI(), request.getContextPath() + prefix);
+			pathToNode =  URLDecoder.decode(pathToNode, "UTF-8");
 			String filePath = nativePathToWorkspace + File.separatorChar + pathToNode.replace('\\', File.separatorChar).replace('/', File.separatorChar);
 			//for testing in Windows 
 			//String[] args = new String[]{"cmd.exe", "/c", "echo", filePath};
@@ -88,7 +90,7 @@ public class RepositoryController {
 			String[] args = new String[]{"chmod", "-w", filePath};
 			String result;
 			try {
-				log.info("Executing: " + args[0]); // + " " + args[1]);
+				log.info("Executing: " + Arrays.toString(args));
 				result = CommandExecutor.exec(args);
 				log.info("Execution result: " + result);
 				throw new OKEvent();
@@ -101,9 +103,9 @@ public class RepositoryController {
 	}
 	
 	@RequestMapping(value = "/**", method =  RequestMethod.GET)
-	public @ResponseBody String download(HttpServletRequest request, HttpServletResponse response) throws RepositoryException, IOException {
+	public void download(HttpServletRequest request, HttpServletResponse response) throws RepositoryException, IOException {
 
-	String pathToNode = PathProcessor.getPathToNode(StringUtils.removeStart(request.getRequestURI(), request.getContextPath() + prefix));
+	String pathToNode = PathProcessor.getPathToNode(StringUtils.removeStart(URLDecoder.decode(request.getRequestURI(),"UTF-8"), request.getContextPath() + prefix));
 	String repositoryName = PathProcessor.getRepositoryName(StringUtils.removeStart(request.getRequestURI(), request.getContextPath() + prefix));
 		if (!StringUtils.isEmpty(repositoryName)){
 			if (!StringUtils.isEmpty(pathToNode)){
@@ -117,20 +119,10 @@ public class RepositoryController {
 						response.flushBuffer();
 					}
 					binary.dispose();
-					return "<html>downloading... " + PathProcessor.getNodeName(request.getRequestURI()) + "</html>";	
-				}else{
-					throw new PathNotFoundException();
 				}
-			}else{
-				throw new PathNotFoundException();	
 			}
-		}else{
-			StringBuffer sb = new StringBuffer();
-			for (String repo:service.getRepositoryNames()){
-				sb.append("<br>" + repo);
-			}
-			throw new PathNotFoundException();
 		}
+		throw new PathNotFoundException();
 	}
 	
 	
